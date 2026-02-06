@@ -973,9 +973,10 @@
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
+       const API_KEY = 'AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
 const IMGBB_API_KEY = '88d96f4f0ea3c248dd8fafa3e0699a07';
-const MINIMUM_CHARGE = 45;
+const MINIMUM_CHARGE_STANDON = 45;
+const MINIMUM_CHARGE_PUSH = 60;
 
 // NEW PRICING CONSTANTS
 const HOURLY_RATE = 91;
@@ -998,9 +999,10 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
         let polygons=[];
         let totalArea=0;
         let propertyAddress='';
-        function calculatePrice(totalArea, serviceType) {
+       function calculatePrice(totalArea, serviceType) {
     // Select equipment specs based on service type
     const sqftPerHour = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
+    const minimumCharge = serviceType === 'standard' ? MINIMUM_CHARGE_STANDON : MINIMUM_CHARGE_PUSH;
     
     // Calculate mowing time in minutes
     const mowingMinutes = (totalArea / sqftPerHour) * 60;
@@ -1011,8 +1013,8 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
     // Convert to hours and calculate price
     const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
     
-    // Apply minimum
-    let finalPrice = Math.max(MINIMUM_CHARGE, calculatedPrice);
+    // Apply minimum based on service type
+    let finalPrice = Math.max(minimumCharge, calculatedPrice);
     
     // Round to nearest $5 (for quotes under $100) or $10 (for $100+)
     if (finalPrice < 100) {
