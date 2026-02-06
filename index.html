@@ -973,17 +973,56 @@
     </div>
 
     <script>
-        const API_KEY='AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
-        const IMGBB_API_KEY='88d96f4f0ea3c248dd8fafa3e0699a07';
-        const MINIMUM_CHARGE=45;
-        const RATES={standard:0.012,push:0.028};
+        const API_KEY = 'AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
+const IMGBB_API_KEY = '88d96f4f0ea3c248dd8fafa3e0699a07';
+const MINIMUM_CHARGE = 45;
+
+// NEW PRICING CONSTANTS
+const HOURLY_RATE = 91;
+const FIXED_TRIM_TIME = 20; // minutes
+
+// Stand-On Mower Specs
+const STANDON_WIDTH = 3; // feet (36 inches)
+const STANDON_SPEED = 4; // mph
+const STANDON_EFFICIENCY = 0.80;
+const STANDON_SQFT_PER_HOUR = STANDON_WIDTH * STANDON_SPEED * 5280 * STANDON_EFFICIENCY; // 50,688 sq ft/hr
+
+// Push Mower Specs
+const PUSH_WIDTH = 1.833; // feet (22 inches)
+const PUSH_SPEED = 2; // mph
+const PUSH_EFFICIENCY = 0.80;
+const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 15,485 sq ft/hr
         const BREVARD_BOUNDS={north:28.65,south:27.85,east:-80.40,west:-81.15};
         
         let map,drawingManager,autocomplete;
         let polygons=[];
         let totalArea=0;
         let propertyAddress='';
-        
+        function calculatePrice(totalArea, serviceType) {
+    // Select equipment specs based on service type
+    const sqftPerHour = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
+    
+    // Calculate mowing time in minutes
+    const mowingMinutes = (totalArea / sqftPerHour) * 60;
+    
+    // Add fixed trimming/blowing time
+    const totalMinutes = mowingMinutes + FIXED_TRIM_TIME;
+    
+    // Convert to hours and calculate price
+    const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
+    
+    // Apply minimum
+    let finalPrice = Math.max(MINIMUM_CHARGE, calculatedPrice);
+    
+    // Round to nearest $5 (for quotes under $100) or $10 (for $100+)
+    if (finalPrice < 100) {
+        finalPrice = Math.round(finalPrice / 5) * 5;
+    } else {
+        finalPrice = Math.round(finalPrice / 10) * 10;
+    }
+    
+    return finalPrice;
+}
         function initMap(){
             console.log('initMap called');
             setupAutocomplete();
@@ -1290,9 +1329,7 @@
                 return;
             }
             
-            const rate=RATES[serviceType];
-            const calculatedPrice=totalArea*rate;
-            const finalPrice=Math.max(MINIMUM_CHARGE,calculatedPrice);
+           const finalPrice = calculatePrice(totalArea, serviceType);
             const serviceNames={'standard':'Stand-On Mowing','push':'Push Mowing - Bagged'};
             const frequencyNames={'onetime':'One-time Service','weekly':'Weekly','biweekly':'Bi-weekly'};
             
