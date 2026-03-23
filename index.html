@@ -76,7 +76,6 @@
         
         /* Ensure controls don't overflow viewport in fullscreen */
         @media (max-width: 768px) {
-            /* Position all controls with safe margins on mobile fullscreen */
             .map-expanded .gm-bundled-control {
                 margin: 10px 10px 10px 10px !important;
                 right: 10px !important;
@@ -93,7 +92,6 @@
                 left: 10px !important;
             }
             
-            /* Drawing controls on left side */
             .map-expanded div[style*="TOP_CENTER"],
             .map-expanded div[style*="LEFT_TOP"] {
                 left: 10px !important;
@@ -101,7 +99,6 @@
                 right: auto !important;
             }
             
-            /* Exit button stays clear at top */
             #customFullscreenBtn {
                 top: 10px !important;
                 right: 10px !important;
@@ -496,20 +493,17 @@
             margin-top: 4px;
         }
         
-        /* Fullscreen button text - hide on mobile */
         @media (max-width: 640px) {
             .exit-text {
                 display: none;
             }
             
-            /* Ensure button stays visible in fullscreen on mobile */
             #customFullscreenBtn {
                 max-width: calc(100vw - 20px);
                 box-sizing: border-box;
             }
         }
         
-        /* Ensure fullscreen button is always on top and visible */
         #customFullscreenBtn {
             position: relative;
             z-index: 10;
@@ -563,7 +557,7 @@
             color: white;
         }
         
-        /* Map Type Toggle - Top Right (below exit) */
+        /* Map Type Toggle */
         .map-type-toggle {
             position: fixed;
             right: 15px;
@@ -589,7 +583,7 @@
             color: white;
         }
         
-        /* Drawing Toggle - Left Side */
+        /* Drawing Toggle */
         .drawing-toggle {
             position: fixed;
             left: 15px;
@@ -618,7 +612,6 @@
             transform: scale(0.95);
         }
         
-        /* Hide default Google Maps controls in fullscreen on mobile */
         @media (max-width: 768px) {
             .map-expanded .gm-bundled-control,
             .map-expanded .gm-style-mtc,
@@ -675,23 +668,14 @@
                     
                     <div id="map" style="width:100%;height:400px;position:relative;" class="rounded-xl border-2 border-gray-300 shadow-lg bg-gray-200 md:h-[500px]"></div>
                     
-                    <!-- Custom Floating Controls (only show in fullscreen on mobile) -->
+                    <!-- Custom Floating Controls -->
                     <div id="floatingControls" class="floating-controls">
-                        <!-- Zoom Controls -->
                         <div class="zoom-controls">
                             <div class="zoom-btn" id="zoomInBtn">+</div>
                             <div class="zoom-btn" id="zoomOutBtn">−</div>
                         </div>
-                        
-                        <!-- Map Type Toggle -->
-                        <div class="map-type-toggle" id="mapTypeBtn">
-                            📍 Map
-                        </div>
-                        
-                        <!-- Drawing Tool Toggle -->
-                        <div class="drawing-toggle" id="drawingBtn">
-                            ✏️ Draw
-                        </div>
+                        <div class="map-type-toggle" id="mapTypeBtn">📍 Map</div>
+                        <div class="drawing-toggle" id="drawingBtn">✏️ Draw</div>
                     </div>
                     
                     <div class="mt-4 space-y-3">
@@ -955,7 +939,7 @@
                             ></textarea>
                         </div>
                         
-                        <!-- Summary Field (Hidden from user, populated automatically) -->
+                        <!-- Summary Field (Hidden) -->
                         <input type="hidden" name="da7eab7c-a340-4387-830f-203f9236fe0a" id="summarySA" value="" />
                         
                         <!-- Honeypot Fields -->
@@ -973,58 +957,50 @@
     </div>
 
     <script>
-       const API_KEY = 'AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
-const IMGBB_API_KEY = '88d96f4f0ea3c248dd8fafa3e0699a07';
-const MINIMUM_CHARGE_STANDON = 45;
-const MINIMUM_CHARGE_PUSH = 60;
+        const API_KEY = 'AIzaSyBHvZq7kiDX_thzi8F9XTg_bySLcxpd_ME';
+        const IMGBB_API_KEY = '88d96f4f0ea3c248dd8fafa3e0699a07';
 
-// NEW PRICING CONSTANTS
-const HOURLY_RATE = 158;
-const FIXED_TRIM_TIME = 20; // minutes
+        // ── PRICING CONSTANTS ──────────────────────────────────────────
+        const MINIMUM_CHARGE_STANDON = 65;   // updated from 45
+        const MINIMUM_CHARGE_PUSH    = 85;   // updated from 60
+        const HOURLY_RATE            = 158;
+        const FIXED_TRIM_TIME        = 20;   // minutes
 
-// Stand-On Mower Specs
-const STANDON_WIDTH = 3; // feet (36 inches)
-const STANDON_SPEED = 4; // mph
-const STANDON_EFFICIENCY = 0.80;
-const STANDON_SQFT_PER_HOUR = STANDON_WIDTH * STANDON_SPEED * 5280 * STANDON_EFFICIENCY; // 50,688 sq ft/hr
+        // Stand-On Mower Specs (36" @ 4 mph, 80% efficiency)
+        const STANDON_WIDTH         = 3;       // feet
+        const STANDON_SPEED         = 4;       // mph
+        const STANDON_EFFICIENCY    = 0.80;
+        const STANDON_SQFT_PER_HOUR = STANDON_WIDTH * STANDON_SPEED * 5280 * STANDON_EFFICIENCY; // 50,688
 
-// Push Mower Specs
-const PUSH_WIDTH = 1.833; // feet (22 inches)
-const PUSH_SPEED = 2; // mph
-const PUSH_EFFICIENCY = 0.80;
-const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 15,485 sq ft/hr
+        // Push Mower Specs (22" @ 2 mph, 80% efficiency)
+        const PUSH_WIDTH         = 1.833;  // feet
+        const PUSH_SPEED         = 2;      // mph
+        const PUSH_EFFICIENCY    = 0.80;
+        const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 15,485
+        // ──────────────────────────────────────────────────────────────
+
         const BREVARD_BOUNDS={north:28.65,south:27.85,east:-80.40,west:-81.15};
         
         let map,drawingManager,autocomplete;
         let polygons=[];
         let totalArea=0;
         let propertyAddress='';
-       function calculatePrice(totalArea, serviceType) {
-    // Select equipment specs based on service type
-    const sqftPerHour = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
-    const minimumCharge = serviceType === 'standard' ? MINIMUM_CHARGE_STANDON : MINIMUM_CHARGE_PUSH;
-    
-    // Calculate mowing time in minutes
-    const mowingMinutes = (totalArea / sqftPerHour) * 60;
-    
-    // Add fixed trimming/blowing time
-    const totalMinutes = mowingMinutes + FIXED_TRIM_TIME;
-    
-    // Convert to hours and calculate price
-    const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
-    
-    // Apply minimum based on service type
-    let finalPrice = Math.max(minimumCharge, calculatedPrice);
-    
-    // Round to nearest $5 (for quotes under $100) or $10 (for $100+)
-    if (finalPrice < 100) {
-        finalPrice = Math.round(finalPrice / 5) * 5;
-    } else {
-        finalPrice = Math.round(finalPrice / 10) * 10;
-    }
-    
-    return finalPrice;
-}
+
+        function calculatePrice(totalArea, serviceType) {
+            const sqftPerHour   = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
+            const minimumCharge = serviceType === 'standard' ? MINIMUM_CHARGE_STANDON : MINIMUM_CHARGE_PUSH;
+            const mowingMinutes = (totalArea / sqftPerHour) * 60;
+            const totalMinutes  = mowingMinutes + FIXED_TRIM_TIME;
+            const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
+            let finalPrice = Math.max(minimumCharge, calculatedPrice);
+            if (finalPrice < 100) {
+                finalPrice = Math.round(finalPrice / 5) * 5;
+            } else {
+                finalPrice = Math.round(finalPrice / 10) * 10;
+            }
+            return finalPrice;
+        }
+
         function initMap(){
             console.log('initMap called');
             setupAutocomplete();
@@ -1039,7 +1015,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     const isMobile=window.innerWidth<=768;
                     
                     if(!isExpanded){
-                        // Expand to fullscreen
                         mapElement.classList.add('map-expanded');
                         mapElement.style.position='fixed';
                         mapElement.style.top='0';
@@ -1048,19 +1023,13 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         mapElement.style.height='100vh';
                         mapElement.style.zIndex='999999';
                         mapElement.style.borderRadius='0';
-                        
-                        // Show floating controls on mobile
                         if(isMobile && floatingControls){
                             floatingControls.classList.add('active');
                         }
-                        
-                        // Prevent body scroll and hide overflow
                         document.body.style.overflow='hidden';
                         document.body.style.position='fixed';
                         document.body.style.width='100%';
                         document.body.style.height='100%';
-                        
-                        // Update button for fullscreen mode
                         fullscreenBtn.innerHTML='<span style="font-size:18px;">✕</span> <span class="exit-text">Exit</span>';
                         fullscreenBtn.style.position='fixed';
                         fullscreenBtn.style.top='10px';
@@ -1070,8 +1039,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         fullscreenBtn.style.fontSize='14px';
                         fullscreenBtn.style.minWidth='auto';
                         fullscreenBtn.style.whiteSpace='nowrap';
-                        
-                        // Trigger map resize and recenter
                         if(map){
                             setTimeout(function(){
                                 const currentCenter = map.getCenter();
@@ -1080,7 +1047,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                             }, 100);
                         }
                     }else{
-                        // Exit fullscreen
                         mapElement.classList.remove('map-expanded');
                         mapElement.style.position='relative';
                         mapElement.style.top='';
@@ -1089,19 +1055,13 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         mapElement.style.height='400px';
                         mapElement.style.zIndex='';
                         mapElement.style.borderRadius='';
-                        
-                        // Hide floating controls
                         if(floatingControls){
                             floatingControls.classList.remove('active');
                         }
-                        
-                        // Restore body scroll
                         document.body.style.overflow='';
                         document.body.style.position='';
                         document.body.style.width='';
                         document.body.style.height='';
-                        
-                        // Reset button to normal mode
                         fullscreenBtn.innerHTML='<span style="font-size:20px;">⛶</span> <span class="hidden sm:inline">Open</span> Fullscreen Map';
                         fullscreenBtn.style.position='';
                         fullscreenBtn.style.top='';
@@ -1111,8 +1071,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         fullscreenBtn.style.fontSize='';
                         fullscreenBtn.style.minWidth='';
                         fullscreenBtn.style.whiteSpace='';
-                        
-                        // Restore default control positions
                         if(map){
                             setTimeout(function(){
                                 const currentCenter = map.getCenter();
@@ -1126,21 +1084,12 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
         }
         
         function setupFloatingControls(){
-            // Zoom In
             document.getElementById('zoomInBtn').addEventListener('click',function(){
-                if(map){
-                    map.setZoom(map.getZoom() + 1);
-                }
+                if(map){ map.setZoom(map.getZoom() + 1); }
             });
-            
-            // Zoom Out
             document.getElementById('zoomOutBtn').addEventListener('click',function(){
-                if(map){
-                    map.setZoom(map.getZoom() - 1);
-                }
+                if(map){ map.setZoom(map.getZoom() - 1); }
             });
-            
-            // Map Type Toggle
             let isSatellite = true;
             document.getElementById('mapTypeBtn').addEventListener('click',function(){
                 if(map){
@@ -1155,8 +1104,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     }
                 }
             });
-            
-            // Drawing Tool Toggle
             let isDrawing = false;
             document.getElementById('drawingBtn').addEventListener('click',function(){
                 if(drawingManager){
@@ -1181,7 +1128,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                 new google.maps.LatLng(BREVARD_BOUNDS.south,BREVARD_BOUNDS.west),
                 new google.maps.LatLng(BREVARD_BOUNDS.north,BREVARD_BOUNDS.east)
             );
-            
             autocomplete=new google.maps.places.Autocomplete(input,{
                 bounds:brevardBounds,
                 strictBounds:false,
@@ -1189,15 +1135,12 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                 fields:['geometry','formatted_address','address_components'],
                 types:['address']
             });
-            
             autocomplete.addListener('place_changed',()=>{
                 const place=autocomplete.getPlace();
-                
                 if(!place.geometry||!place.geometry.location){
                     alert('Please select an address from the dropdown');
                     return;
                 }
-                
                 const isInFlorida=place.address_components.some(component=>
                     component.types.includes('administrative_area_level_1')&&
                     (component.short_name==='FL'||component.long_name==='Florida')
@@ -1207,16 +1150,13 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     input.value='';
                     return;
                 }
-                
                 const lat=place.geometry.location.lat();
                 const lng=place.geometry.location.lng();
-                
                 if(lat<BREVARD_BOUNDS.south||lat>BREVARD_BOUNDS.north||lng<BREVARD_BOUNDS.west||lng>BREVARD_BOUNDS.east){
                     alert('❌ Address is outside our service area.\n\n✅ We serve:\n• Titusville\n• Mims\n• Port St. John\n• Cocoa\n• Christmas');
                     input.value='';
                     return;
                 }
-                
                 const isBrevard=place.address_components.some(component=>
                     component.types.includes('administrative_area_level_2')&&
                     component.long_name.includes('Brevard')
@@ -1226,7 +1166,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     input.value='';
                     return;
                 }
-                
                 propertyAddress=place.formatted_address;
                 loadMap(lat,lng);
             });
@@ -1241,12 +1180,9 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     mapTypeControl:true,
                     streetViewControl:false,
                     fullscreenControl:true,
-                    fullscreenControlOptions:{
-                        position:google.maps.ControlPosition.RIGHT_TOP
-                    },
+                    fullscreenControlOptions:{position:google.maps.ControlPosition.RIGHT_TOP},
                     zoomControl:true
                 });
-                
                 drawingManager=new google.maps.drawing.DrawingManager({
                     drawingMode:google.maps.drawing.OverlayType.POLYGON,
                     drawingControl:true,
@@ -1263,9 +1199,7 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         draggable:false
                     }
                 });
-                
                 drawingManager.setMap(map);
-                
                 google.maps.event.addListener(drawingManager,'overlaycomplete',(event)=>{
                     const polygon=event.overlay;
                     polygons.push(polygon);
@@ -1274,7 +1208,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     google.maps.event.addListener(polygon.getPath(),'set_at',calculateTotalArea);
                     google.maps.event.addListener(polygon.getPath(),'insert_at',calculateTotalArea);
                 });
-                
                 document.getElementById('step2').classList.remove('hidden');
             }else{
                 map.setCenter({lat,lng});
@@ -1286,23 +1219,19 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
         function calculateTotalArea(){
             totalArea=0;
             const areasList=document.getElementById('areasList');
-            
             if(polygons.length===0){
                 areasList.innerHTML='<p class="text-gray-500 text-sm">No areas drawn yet</p>';
                 document.getElementById('totalArea').textContent='0 sq ft';
                 document.getElementById('step3').classList.add('hidden');
                 return;
             }
-            
             let areasHTML='<div class="space-y-2"><p class="font-semibold text-gray-700 mb-2 text-sm">Individual Areas:</p>';
-            
             polygons.forEach((polygon,index)=>{
                 const areaM2=google.maps.geometry.spherical.computeArea(polygon.getPath());
                 const areaSqFt=Math.round(areaM2*10.764);
                 totalArea+=areaSqFt;
                 areasHTML+=`<div class="flex justify-between items-center bg-green-50 p-2 rounded text-sm"><span class="text-gray-700">Area ${index+1}:</span><span class="font-semibold text-green-600">${areaSqFt.toLocaleString()} sq ft</span></div>`;
             });
-            
             areasHTML+='</div>';
             areasList.innerHTML=areasHTML;
             document.getElementById('totalArea').textContent=totalArea.toLocaleString()+' sq ft';
@@ -1325,21 +1254,17 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
         document.getElementById('calculateBtn').addEventListener('click',()=>{
             const serviceType=document.getElementById('serviceType').value;
             const frequency=document.getElementById('frequency').value;
-            
             if(!serviceType||totalArea===0){
                 alert('Please select a service type and draw your lawn area');
                 return;
             }
-            
-           const finalPrice = calculatePrice(totalArea, serviceType);
+            const finalPrice = calculatePrice(totalArea, serviceType);
             const serviceNames={'standard':'Stand-On Mowing','push':'Push Mowing - Bagged'};
             const frequencyNames={'onetime':'One-time Service','weekly':'Weekly','biweekly':'Bi-weekly'};
-            
             document.getElementById('resultArea').textContent=totalArea.toLocaleString()+' sq ft';
             document.getElementById('resultService').textContent=serviceNames[serviceType];
             document.getElementById('resultFrequency').textContent=frequencyNames[frequency];
             document.getElementById('resultPrice').textContent='$'+finalPrice.toFixed(2);
-            
             document.getElementById('resultsModal').classList.add('active');
         });
         
@@ -1359,12 +1284,10 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
             const price=document.getElementById('resultPrice').textContent;
             const serviceNames={'standard':'Stand-On Mowing','push':'Push Mowing - Bagged'};
             const frequencyNames={'onetime':'One-time Service','weekly':'Weekly','biweekly':'Bi-weekly'};
-            
             const contactBtn=document.getElementById('contactBtn');
             const originalText=contactBtn.innerHTML;
             contactBtn.innerHTML='📸 Capturing map...';
             contactBtn.disabled=true;
-            
             captureMapSnapshot().then(mapImageData=>{
                 if(mapImageData){
                     contactBtn.innerHTML='☁️ Uploading map...';
@@ -1377,7 +1300,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                 }else{
                     saveAndContinue(null,null);
                 }
-                
                 function saveAndContinue(imageUrl,mapImageData){
                     sessionStorage.setItem('lawnMeasurement',JSON.stringify({
                         address:propertyAddress,
@@ -1410,7 +1332,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
         function captureMapSnapshot(){
             return new Promise((resolve,reject)=>{
                 if(!map){resolve(null);return;}
-                
                 try{
                     const mapElement=document.getElementById('map');
                     if(typeof html2canvas==='undefined'){
@@ -1450,7 +1371,6 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                 const base64Data=base64Image.split(',')[1];
                 const formData=new FormData();
                 formData.append('image',base64Data);
-                
                 fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{
                     method:'POST',
                     body:formData
@@ -1463,9 +1383,7 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                         reject(new Error('Upload failed'));
                     }
                 })
-                .catch(error=>{
-                    reject(error);
-                });
+                .catch(error=>{ reject(error); });
             });
         }
         
@@ -1476,21 +1394,17 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
             document.getElementById('step3').style.display='none';
             document.getElementById('formContainer').style.display='block';
             window.scrollTo(0,0);
-            setTimeout(()=>{
-                displayMeasurementSummary();
-            },100);
+            setTimeout(()=>{ displayMeasurementSummary(); },100);
         }
         
         function displayMeasurementSummary(){
             const data=JSON.parse(sessionStorage.getItem('lawnMeasurement'));
             if(!data)return;
-            
             document.getElementById('summary-address').textContent=data.address;
             document.getElementById('summary-area').textContent=data.totalArea.toLocaleString()+' sq ft';
             document.getElementById('summary-service').textContent=data.serviceType;
             document.getElementById('summary-frequency').textContent=data.frequency;
             document.getElementById('summary-price').textContent=data.estimatedPrice;
-            
             if(data.mapSnapshot){
                 const container=document.getElementById('summary-map-container');
                 container.innerHTML=`
@@ -1500,59 +1414,35 @@ const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 
                     </div>
                 `;
             }
-            
             const addressParts=parseAddress(data.address);
-            
             const addressFieldSA=document.getElementById('addressLine1SA');
             const cityFieldSA=document.getElementById('citySA');
             const stateFieldSA=document.getElementById('stateSA');
             const zipFieldSA=document.getElementById('zipSA');
-            
             if(addressFieldSA&&addressParts.street)addressFieldSA.value=addressParts.street;
             if(cityFieldSA&&addressParts.city)cityFieldSA.value=addressParts.city;
             if(stateFieldSA&&addressParts.state)stateFieldSA.value=addressParts.state;
             if(zipFieldSA&&addressParts.zip)zipFieldSA.value=addressParts.zip;
-            
-            let summaryText=`Lawn Measurement Quote Request
-
-Address: ${data.address}
-Total Lawn Area: ${data.totalArea.toLocaleString()} sq ft
-Service Type: ${data.serviceType}
-Service Frequency: ${data.frequency}
-Estimated Price: ${data.estimatedPrice}
-`;
-            
+            let summaryText=`Lawn Measurement Quote Request\n\nAddress: ${data.address}\nTotal Lawn Area: ${data.totalArea.toLocaleString()} sq ft\nService Type: ${data.serviceType}\nService Frequency: ${data.frequency}\nEstimated Price: ${data.estimatedPrice}\n`;
             if(data.mapImageUrl){
                 summaryText+=`\n\n📸 VIEW PROPERTY MAP:\n${data.mapImageUrl}\n\n`;
             }
-            
             const summaryTextareaSA=document.getElementById('summarySA');
-            if(summaryTextareaSA){
-                summaryTextareaSA.value=summaryText;
-            }
+            if(summaryTextareaSA){ summaryTextareaSA.value=summaryText; }
         }
         
         function parseAddress(fullAddress){
             const parts=fullAddress.split(',').map(p=>p.trim());
-            let zip='';
-            let state='FL';
-            let city='';
-            let street='';
-            
+            let zip='',state='FL',city='',street='';
             if(parts.length>=3){
                 street=parts[0]||'';
                 city=parts[1]||'';
                 const lastPart=parts[2]||'';
                 const zipMatch=lastPart.match(/\d{5}(-\d{4})?/);
-                if(zipMatch){
-                    zip=zipMatch[0];
-                }
+                if(zipMatch){ zip=zipMatch[0]; }
                 const stateMatch=lastPart.match(/\b([A-Z]{2})\b/);
-                if(stateMatch){
-                    state=stateMatch[1];
-                }
+                if(stateMatch){ state=stateMatch[1]; }
             }
-            
             return{street:street,city:city,state:state,zip:zip};
         }
         
@@ -1564,7 +1454,6 @@ Estimated Price: ${data.estimatedPrice}
             window.scrollTo(0,0);
         });
         
-        // ServiceAutopilot Form Validation
         function RemoveClass(elem,name){elem.className=elem.className.replace(name,'');}
         function AddClass(elem,name){if(elem.className.indexOf(name)==-1){elem.className+=(' '+name);}}
         function MarkInvalidElement(el){
@@ -1575,89 +1464,57 @@ Estimated Price: ${data.estimatedPrice}
                 AddClass(el,"form-input");
             },{once:true});
         }
-
         function CheckHoneyPot(){
             var isRobot=false;
             const honeypot=document.querySelectorAll(".sa-ohnohoney");
             for(let i=0;i<honeypot.length;i++){
-                if(honeypot[i].value!==''){
-                    isRobot=true;
-                    break;
-                }
+                if(honeypot[i].value!==''){isRobot=true;break;}
             }
-            if(isRobot==false){
-                isRobot=CheckKeywordBlacklist();
-            }
+            if(isRobot==false){isRobot=CheckKeywordBlacklist();}
             return isRobot;
         }
-
         function CheckKeywordBlacklist(){
             var hasKeywordBlacklist=false;
             var keywords='';
-            if(keywords.length===0){
-                return hasKeywordBlacklist;
-            }
+            if(keywords.length===0){return hasKeywordBlacklist;}
             var blacklist=keywords.split(",");
             var inputs=document.querySelectorAll('input[type=text]');
             for(var i=0;i<inputs.length;i++){
                 var value=inputs[i].value.toLowerCase();
-                if(blacklist.some(v=>value.includes(v))){
-                    hasKeywordBlacklist=true;
-                    break;
-                }
+                if(blacklist.some(v=>value.includes(v))){hasKeywordBlacklist=true;break;}
             }
             return hasKeywordBlacklist;
         }
-
         function Validate(){
             var IsValidated=true;
             var re=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            
             var emailEl=document.getElementsByName('eef3d92a-e9c0-4b10-b94b-8aa045bb2273')[0];
             if(emailEl.value==""||re.test(emailEl.value)!=true){IsValidated=false;MarkInvalidElement(emailEl);}
-            
             var firstEl=document.getElementsByName('b59f8af6-4b25-4dfb-8640-a30afc431f0e_First')[0];
             if(firstEl.value.trim()==""){IsValidated=false;MarkInvalidElement(firstEl);}
-            
             var lastEl=document.getElementsByName('b59f8af6-4b25-4dfb-8640-a30afc431f0e_Last')[0];
             if(lastEl.value.trim()==""){IsValidated=false;MarkInvalidElement(lastEl);}
-            
             var addrEl=document.getElementsByName('a40b9302-014b-4a9a-a548-fe44929adaf2_Address')[0];
             if(addrEl.value.trim()==""){IsValidated=false;MarkInvalidElement(addrEl);}
-            
             var cityEl=document.getElementsByName('a40b9302-014b-4a9a-a548-fe44929adaf2_City')[0];
             if(cityEl.value.trim()==""){IsValidated=false;MarkInvalidElement(cityEl);}
-            
             var stateEl=document.getElementsByName('a40b9302-014b-4a9a-a548-fe44929adaf2_State')[0];
             if(stateEl.value.trim()==""){IsValidated=false;MarkInvalidElement(stateEl);}
-            
             var zipEl=document.getElementsByName('a40b9302-014b-4a9a-a548-fe44929adaf2_Zip')[0];
             if(zipEl.value.trim()==""){IsValidated=false;MarkInvalidElement(zipEl);}
-            
             var phoneEl=document.getElementsByName('5c7100e4-a442-4e84-9fd6-5b820843b42b')[0];
             if(phoneEl.value.trim()==""){IsValidated=false;MarkInvalidElement(phoneEl);}
-            
             var isHoney=CheckHoneyPot();
             var submitBtn=document.getElementById("BackFormSubmitButtonDomID");
-            
-            if(submitBtn){
-                submitBtn.disabled=true;
-                submitBtn.classList.add('loading');
-            }
-            
+            if(submitBtn){submitBtn.disabled=true;submitBtn.classList.add('loading');}
             if(isHoney==true){
                 window.location.href='https://www.wslawncareservicesllc.com/thank-you';
                 return false;
-            }
-            else if(IsValidated==true){
+            }else if(IsValidated==true){
                 return true;
-            }
-            else{
+            }else{
                 alert("Please fill out all required fields.");
-                if(submitBtn){
-                    submitBtn.disabled=false;
-                    submitBtn.classList.remove('loading');
-                }
+                if(submitBtn){submitBtn.disabled=false;submitBtn.classList.remove('loading');}
                 return false;
             }
         }
