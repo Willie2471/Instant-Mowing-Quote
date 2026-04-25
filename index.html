@@ -961,10 +961,12 @@
         const IMGBB_API_KEY = '88d96f4f0ea3c248dd8fafa3e0699a07';
 
         // ── PRICING CONSTANTS ──────────────────────────────────────────
-        const MINIMUM_CHARGE_STANDON = 65;   // updated from 45
-        const MINIMUM_CHARGE_PUSH    = 85;   // updated from 60
-        const HOURLY_RATE            = 158;
-        const FIXED_TRIM_TIME        = 20;   // minutes
+        const MINIMUM_CHARGE_STANDON        = 50;   // applies to yards <= 5,000 sq ft
+        const MINIMUM_CHARGE_STANDON_THRESHOLD = 5000; // sq ft cutoff for stand-on minimum
+        const MINIMUM_CHARGE_PUSH           = 60;   // applies to yards <= 3,000 sq ft
+        const MINIMUM_CHARGE_PUSH_THRESHOLD = 3000; // sq ft cutoff for push minimum
+        const HOURLY_RATE                   = 158;
+        const FIXED_TRIM_TIME               = 20;   // minutes
 
         // Stand-On Mower Specs (36" @ 4 mph, 80% efficiency)
         const STANDON_WIDTH         = 3;       // feet
@@ -987,11 +989,19 @@
         let propertyAddress='';
 
         function calculatePrice(totalArea, serviceType) {
-            const sqftPerHour   = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
-            const minimumCharge = serviceType === 'standard' ? MINIMUM_CHARGE_STANDON : MINIMUM_CHARGE_PUSH;
+            const sqftPerHour = serviceType === 'standard' ? STANDON_SQFT_PER_HOUR : PUSH_SQFT_PER_HOUR;
             const mowingMinutes = (totalArea / sqftPerHour) * 60;
             const totalMinutes  = mowingMinutes + FIXED_TRIM_TIME;
             const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
+
+            // Stand-on: $50 minimum only for yards <= 5,000 sq ft; above that, calculated price wins
+            // Push: flat $85 minimum always applies
+            let minimumCharge;
+            if (serviceType === 'standard') {
+                minimumCharge = totalArea <= MINIMUM_CHARGE_STANDON_THRESHOLD ? MINIMUM_CHARGE_STANDON : 0;
+            } else {
+                minimumCharge = totalArea <= MINIMUM_CHARGE_PUSH_THRESHOLD ? MINIMUM_CHARGE_PUSH : 0;
+            }
             let finalPrice = Math.max(minimumCharge, calculatedPrice);
             if (finalPrice < 100) {
                 finalPrice = Math.round(finalPrice / 5) * 5;
