@@ -994,15 +994,14 @@
             const totalMinutes  = mowingMinutes + FIXED_TRIM_TIME;
             const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
 
-            // Stand-on: $50 minimum only for yards <= 5,000 sq ft; above that, calculated price wins
-            // Push: flat $85 minimum always applies
-            let minimumCharge;
+            // Stand-on: flat $50 for yards <= 5,000 sq ft; calculated price above that
+            // Push: flat $60 for yards <= 3,000 sq ft; calculated price above that
+            let finalPrice;
             if (serviceType === 'standard') {
-                minimumCharge = totalArea <= MINIMUM_CHARGE_STANDON_THRESHOLD ? MINIMUM_CHARGE_STANDON : 0;
+                finalPrice = totalArea <= MINIMUM_CHARGE_STANDON_THRESHOLD ? MINIMUM_CHARGE_STANDON : calculatedPrice;
             } else {
-                minimumCharge = totalArea <= MINIMUM_CHARGE_PUSH_THRESHOLD ? MINIMUM_CHARGE_PUSH : 0;
+                finalPrice = totalArea <= MINIMUM_CHARGE_PUSH_THRESHOLD ? MINIMUM_CHARGE_PUSH : calculatedPrice;
             }
-            let finalPrice = Math.max(minimumCharge, calculatedPrice);
             if (finalPrice < 100) {
                 finalPrice = Math.round(finalPrice / 5) * 5;
             } else {
