@@ -638,7 +638,7 @@
                             type="text" 
                             id="addressInput" 
                             class="w-full px-4 py-3 md:py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none text-base md:text-lg"
-                            placeholder="Enter your Brevard County address..."
+                            placeholder="Enter your address...We Serve Titusville, Mims, Scottsmore, and Port St. John"
                             autocomplete="off"
                         />
                     </div>
@@ -981,8 +981,13 @@
         const PUSH_SQFT_PER_HOUR = PUSH_WIDTH * PUSH_SPEED * 5280 * PUSH_EFFICIENCY; // 15,485
         // ──────────────────────────────────────────────────────────────
 
-        const BREVARD_BOUNDS={north:28.65,south:27.85,east:-80.40,west:-81.15};
-        
+        // ── SERVICE AREA: Mims, Titusville, Scottsmoor, Port St. John ──
+        // Zip codes served: 32754 (Mims), 32775 (Scottsmoor), 32780 (Titusville),
+        //                   32796 (Titusville), 32927 (Port St. John)
+        const BREVARD_BOUNDS={north:28.72,south:28.42,east:-80.70,west:-81.00};
+        const SERVICE_AREA_ZIPS = ['32754','32775','32780','32796','32927'];
+        // ──────────────────────────────────────────────────────────────
+
         let map,drawingManager,autocomplete;
         let polygons=[];
         let totalArea=0;
@@ -994,8 +999,6 @@
             const totalMinutes  = mowingMinutes + FIXED_TRIM_TIME;
             const calculatedPrice = (totalMinutes / 60) * HOURLY_RATE;
 
-            // Stand-on: flat $50 for yards <= 5,000 sq ft; calculated price above that
-            // Push: flat $60 for yards <= 3,000 sq ft; calculated price above that
             let finalPrice;
             if (serviceType === 'standard') {
                 finalPrice = totalArea <= MINIMUM_CHARGE_STANDON_THRESHOLD ? MINIMUM_CHARGE_STANDON : calculatedPrice;
@@ -1162,7 +1165,7 @@
                 const lat=place.geometry.location.lat();
                 const lng=place.geometry.location.lng();
                 if(lat<BREVARD_BOUNDS.south||lat>BREVARD_BOUNDS.north||lng<BREVARD_BOUNDS.west||lng>BREVARD_BOUNDS.east){
-                    alert('❌ Address is outside our service area.\n\n✅ We serve:\n• Titusville\n• Mims\n• Port St. John\n• Cocoa\n• Christmas');
+                    alert('❌ Address is outside our service area.\n\n✅ We serve:\n• Mims (32754)\n• Titusville (32780, 32796)\n• Scottsmoor (32775)\n• Port St. John (32927)');
                     input.value='';
                     return;
                 }
@@ -1171,10 +1174,19 @@
                     component.long_name.includes('Brevard')
                 );
                 if(!isBrevard){
-                    alert('❌ Address is not in our service area.\n\nWe serve: Titusville, Mims, Port St. John, Cocoa, and Christmas in Brevard County, Florida.');
+                    alert('❌ Address is not in our service area.\n\nWe serve: Mims, Titusville, Scottsmoor, and Port St. John in Brevard County, Florida.');
                     input.value='';
                     return;
                 }
+
+                // Zip code validation — only allow our 5 service area zips
+                const zipComponent=place.address_components.find(c=>c.types.includes('postal_code'));
+                if(zipComponent && !SERVICE_AREA_ZIPS.includes(zipComponent.short_name)){
+                    alert('❌ Address is outside our service area.\n\n✅ We serve:\n• Mims (32754)\n• Titusville (32780, 32796)\n• Scottsmoor (32775)\n• Port St. John (32927)');
+                    input.value='';
+                    return;
+                }
+
                 propertyAddress=place.formatted_address;
                 loadMap(lat,lng);
             });
